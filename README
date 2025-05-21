@@ -1,0 +1,223 @@
+*****************************************************
+Selected Inversion Package (SelInv)
+*****************************************************
+
+Copyright (c) 2011, The Regents of the University of California,
+Department of Energy contract-operators of the Lawrence Berkeley
+National Laboratory.  All rights reserved.
+
+
+1. Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   (1) Redistributions of source code must retain the copyright notice,
+this list of conditions and the following disclaimer.
+
+   (2) Redistributions in binary form must reproduce the copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+   (3) Neither the name of the University of California, Lawrence
+Berkeley National Laboratory, U.S. Dept. of Energy nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+
+2. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+3. You are under no obligation whatsoever to provide any bug fixes,
+patches, or upgrades to the features, functionality or performance of
+the source code ("Enhancements") to anyone; however, if you choose to
+make your Enhancements available either publicly, or directly to
+Lawrence Berkeley National Laboratory, without imposing a separate
+written license agreement for such Enhancements, then you hereby grant
+the following license: a non-exclusive, royalty-free perpetual license
+to install, use, modify, prepare derivative works, incorporate into
+other computer software, distribute, and sublicense such enhancements or
+derivative works thereof, in binary and source code form.
+
+*****************************************************
+1. Introduction
+*****************************************************
+
+CSelInv (Complex selected Inversion) is a software tool for computing
+selected components of a sparse, complex symmetric, nonsingular linear
+system based on its sparse LDL' factorization. The factorization is
+performed by the supernodal left-looking LDL' factorization code written
+by Esmond Ng and Barry Peyton in 1995.
+
+For a more detailed description of the selected inversion, please refer
+to the following paper:
+
+L. Lin, C. Yang, J. Meza, J. Lu, L. Ying and W. E, SelInv--An algorithm
+for selected inversion of a sparse symmetric matrix, ACM Trans. Math.
+Software 37, 40, 2011
+
+CSelInv is currently implemented for complex matrices.   
+
+For more information of SelInv, please contact
+
+Chao Yang,
+Computer Research Division, Lawrence Berkeley National Lab,
+Email: cyang@lbl.gov
+
+AND
+
+Lin Lin,
+Computer Research Division, Lawrence Berkeley National Lab,
+Email: linlin@lbl.gov
+
+
+
+*****************************************************
+2. Contents
+*****************************************************
+
+  -  LIB/      :  libraries for LDL' factorization and selected
+                  inversion subroutines. selinvblk.F is the source file for
+                  selected inversion subroutine. 
+
+  -  EXAMPLES/ :  Driver rouines for test examples.
+
+        - cselinv.x 
+                  Compute the selected inversion of a given matrix in
+                  .ccf format. This format can be converted from Matrix
+                  Market format using cconvmat.x. (Usage is contained
+                  in the source file cselinv.c)
+                 
+        - clap2d5pt.x
+                  Compute the selected inversion of two dimension
+                  Laplacian operator. (Usage is contained in the source
+                  file clap2d5pt.c)
+                 
+                  
+  -  UTILITIES/:  Utitliy files for selinv.x.
+
+        - cconvmat.x    
+                  Convert matrices in Matrix Market format (.mtx)
+                  into the format (.ccf) that is readable by selinv.x.
+		  (Usage is contained in the source file 
+                  cconvmat.f90)
+        - Hc.mtx
+                  A test matrix in Matrix-Market format
+
+*****************************************************
+3. Installation
+*****************************************************
+
+Edit Makefile.in and set 
+
+MACHINETYPE = OTHER
+
+Then edit environment variables in Makefile.in
+
+###################################################
+#       OTHER ENVIRONMENTS
+###################################################
+
+
+The default reordering strategy in the symbolic analysis phase is
+Multiple Minimum Degree reordering (MMD). SelInv also supports the usage
+of METIS, including Node Nested Dissection and Edge Nested Dissection.
+If METIS is to be used, then let
+ 
+METIS = <the path for libmetis.a>
+
+and
+
+CFLAGS = -O3 -DMETIS
+
+After the setup of Makefile.in, enter Examples/ and type
+
+   make 
+
+to generate cselinv.x and clap2d5pt.x.
+
+enter UTILITIES/ and type
+   
+   make
+
+to generate cconvmat.x.
+
+
+*****************************************************
+4. Test examples
+*****************************************************
+
+   1) clap2d5pt.x (see clap2d5pt.c for more information about parameters)
+
+      EXAMPLES> ./clap2d5pt.x -nx=20 -ny=20 -chkerr=1
+
+
+      Example output:
+
+      400  1160
+      Dirichlet boundary condition
+      order = -1
+      MMD   : Time reordering    = 0.000e+00
+      Time Symbolic factorization      = 0.000e+00
+
+      nnzlplus = 4057
+      Time numerical factorization      = 0.000e+00
+
+      Time for slow extraction =   3.000e-02
+      errmax =   3.331e-16
+
+      
+    2) cselinv.x (see cselinv.c for more information about parameters)
+       
+
+       UTILITIES> ./cconvmat.x -infile=Hc.mtx -outfile=Hc.ccf
+       UTILITIES> cp Hc.ccf ../EXAMPLES
+       UTILITIES> cd ../EXAMPLES
+       EXAMPLES> ./cselinv.x -file=Hc.ccf -chkerr=1
+       
+       Example output:
+
+       order = -1
+       MMD   : Time reordering    = 0.000e+00
+       Time Symbolic factorization      = 0.000e+00
+
+       NUMBER OF ROWS IN A = 256
+       NUMBER OF NONZERO ELEMENTS IN A = 13248
+       NUMBER OF NONZERO ELEMENTS IN L = 19498
+
+       nnzlplus = 32140
+       Time numerical factorization      = 0.000e+00
+
+       ERROR OF THE DIAGONAL ELEMENTS BETWEEN FULL INVERSION AND SELECTED INVERSION =   3.563e-09
+
+
+*****************************************************
+5. Known problems
+*****************************************************
+
+  1) On some machine types, the vendor supplied zdotu returns error
+     message.  In this case, the netlib version of zdotu should be used.
+
+  2) On some machine types, iargc subroutine used in UTILITIES/cconvmat
+     and UTILITIES/dconvmat returns error message.  In this case one
+     should switch between 
+     integer, external:: iargc
+     and
+     integer, intrinsic:: iargc
+
+     See line 45 of UTILITIES/cconvmat.f90 for more information.
+
+
+------------------------
+Last revision:
+Lin Lin
+7/20/2012
